@@ -62,3 +62,61 @@ def calculate_repos(repos):
         "languages": languages,
         "most_used_language": most_used_language 
     }
+
+if __name__ == "__main__":
+    print("=== GitHub User Statistics Program ===")
+    print("Type 'exit' to quit the program.\n")
+
+    while True:
+        username = input("Enter your username : ").strip()
+
+        if username.lower() == "exit":
+            print("Closing the program.")
+            break
+
+        if not username:
+            print("Please enter a valid username.\n")
+            continue
+
+        print(f"\nFetching data for {username}...")
+
+        user_data = get_user_data(username)
+
+        if user_data.get('message') == "Not Found":
+            print("Error: User not found! Please try again.\n")
+            continue
+
+        repos_data = get_repos(username)
+        if not isinstance(repos_data, list):
+            print("Error: Could not retrieve repositories.\n")
+            continue
+
+        stats = calculate_repos(repos_data)
+
+        print("\n" + "="*40)
+        print(f" USER: {user_data.get('name') or username} (@{username})")
+        print("="*40)
+        print(f"Profile URL        : {user_data.get('html_url')}")
+        print(f"Followers / Lines  : {user_data.get('followers')} Followers / {user_data.get('following')} Following")
+        print(f"Bio                : {user_data.get('bio') or 'No bio available'}")
+        print("-"*40)
+        print(f"Total Repositories : {stats['repo_count']}")
+        print(f"Total Stars        : {stats['total_stars']}")
+        print(f"Total Forks        : {stats['total_forks']}")
+        print(f"Open Issues        : {stats['total_issues']}")
+        print(f"Most Used Language : {stats['most_used_language'] or 'Unknown'}")
+        
+        if stats['top_repo']:
+            print(f"Top Starred Repo   : {stats['top_repo']['name']} ({stats['top_repo']['stargazers_count']} Stars)")
+        else:
+            print("Top Starred Repo   : None")
+            
+        print("Languages Used     :")
+        if stats['languages']:
+            for lang, count in stats['languages'].items():
+                print(f"  - {lang}: {count} repo(s)")
+        else:
+            print("  - No language data found.")
+        print("="*40 + "\n")
+
+        time.sleep(1)
